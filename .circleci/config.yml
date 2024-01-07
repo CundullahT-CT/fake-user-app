@@ -57,7 +57,7 @@ jobs:
       - run:
           name: Execute Deployment Script
           command: |
-            ssh -o "StrictHostKeyChecking=no" ubuntu@ec2-52-29-40-50.eu-central-1.compute.amazonaws.com <<'ENDSSH'
+            ssh -o "StrictHostKeyChecking=no" ubuntu@ec2-18-185-100-82.eu-central-1.compute.amazonaws.com <<'ENDSSH'
             /bin/bash bin/deploy_image.sh
             ENDSSH
 
@@ -74,3 +74,14 @@ workflows:
       - deploy:
           requires:
             - docker-image-create-and-push
+
+
+# ubuntu@ec2-18-185-100-82.eu-central-1.compute.amazonaws.com
+# ubuntu = user
+# ec2-18-185-100-82.eu-central-1.compute.amazonaws.com = hostname
+# 18-185-100-82 = 18.185.100.82 = public ip address of the server
+# firstpart @ secondpart
+# firstpart = who you are (user)
+# secondpart = hostname
+# hostname = like ip, unique name of your server (it also has ip information in it)
+#
