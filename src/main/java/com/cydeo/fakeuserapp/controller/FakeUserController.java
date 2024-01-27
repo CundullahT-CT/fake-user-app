@@ -16,9 +16,9 @@ public class FakeUserController {
         this.fakeUserService = fakeUserService;
     }
 
-    @GetMapping("/lotr")
-    public ResponseEntity<String> getLotrCharacter() {
-        return ResponseEntity.ok(fakeUserService.getLotrCharacter());
+    @GetMapping("/random")
+    public ResponseEntity<String> getRandomName() {
+        return ResponseEntity.ok(fakeUserService.getRandomName());
     }
 
 }

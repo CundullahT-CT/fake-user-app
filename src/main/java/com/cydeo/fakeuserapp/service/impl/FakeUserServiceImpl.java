@@ -14,8 +14,8 @@ public class FakeUserServiceImpl implements FakeUserService {
     }
 
     @Override
-    public String getLotrCharacter() {
-        return faker.lordOfTheRings().character();
+    public String getRandomName() {
+        return faker.name().fullName();
     }
 
 }
