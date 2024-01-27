@@ -16,7 +16,7 @@ public class FakeUserController {
         this.fakeUserService = fakeUserService;
     }
 
-    @GetMapping("/random")
+    @GetMapping("/no-db/random")
     public ResponseEntity<String> getRandomName() {
         return ResponseEntity.ok(fakeUserService.getRandomName());
     }
