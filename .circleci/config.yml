@@ -120,7 +120,13 @@ workflows:
       - test:
           requires:
             - build
-      - deploy_prod
+      - docker-image-create-and-push:
+          requires:
+            - test
+      - deploy_prod:
+          requires:
+            - docker-image-create-and-push
+
 #      - deploy_dev:
 #          requires:
 #            - test
