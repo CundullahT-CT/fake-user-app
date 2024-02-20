@@ -61,13 +61,13 @@ jobs:
           command: cd ~/fake-user-app
       - run:
           name: Create Docker image
-          command: docker build -t 309373202297.dkr.ecr.eu-west-2.amazonaws.com/fake-user-app:latest ~/fake-user-app
+          command: docker build -t $ECR_URL/fake-user-app:latest ~/fake-user-app
       - run:
           name: Login to ECR
-          command: aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 309373202297.dkr.ecr.eu-west-2.amazonaws.com
+          command: aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin $ECR_URL
       - run:
           name: Push the image to ECR
-          command: docker push 309373202297.dkr.ecr.eu-west-2.amazonaws.com/fake-user-app:latest
+          command: docker push $ECR_URL/fake-user-app:latest
 
   deploy_prod:
     machine: true
