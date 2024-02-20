@@ -32,6 +32,26 @@ jobs:
           paths:
             - .
 
+  test:
+    docker:
+      - image: circleci/openjdk:11-jdk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/fake-user-app
+      - run:
+          name: Start Test Database
+          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=jdbc:postgresql://localhost:5432/fake_user_app -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=admin postgres:latest
+      - run:
+          name: Run Integration Tests with Dummy Database
+          command: |
+            echo mvn test started
+            mvn test -Dskip.unit.tests=false -Dskip.integration.tests=false \
+                   -Dspring.datasource.url=jdbc:postgresql://localhost:5432/fake_user_app \
+                   -Dspring.datasource.username=postgres \
+                   -Dspring.datasource.password=admin
+            echo mvn test ended
+
   docker-image-create-and-push:
 
     machine: true
@@ -70,9 +90,12 @@ workflows:
   build_and_deploy:
     jobs:
       - build
-      - docker-image-create-and-push:
+      - test:
           requires:
             - build
+      - docker-image-create-and-push:
+          requires:
+            - test
       - deploy_prod:
           requires:
             - docker-image-create-and-push
