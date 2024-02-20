@@ -40,16 +40,14 @@ jobs:
           at: ~/fake-user-app
       - run:
           name: Start Test Database
-          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=jdbc:postgresql://localhost:5432/fake_user_app -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=admin postgres:latest
+          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB_URL -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
       - run:
           name: Run Integration Tests with Dummy Database
           command: |
-            echo mvn test started
             mvn test -Dskip.unit.tests=false -Dskip.integration.tests=false \
-                   -Dspring.datasource.url=jdbc:postgresql://localhost:5432/fake_user_app \
-                   -Dspring.datasource.username=postgres \
-                   -Dspring.datasource.password=admin
-            echo mvn test ended
+                   -Dspring.datasource.url=$TEST_DB_URL \
+                   -Dspring.datasource.username=$TEST_DB_USERNAME \
+                   -Dspring.datasource.password=$TEST_DB_PASSWORD
 
   docker-image-create-and-push:
 
