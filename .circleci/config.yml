@@ -1,7 +1,7 @@
 version: 2
 
 jobs:
-  prep:
+  build:
 
     docker:
       - image: circleci/openjdk:11-jdk
@@ -10,14 +10,17 @@ jobs:
 
     steps:
       - checkout
-      - run: cd ~
-      - run: mkdir fake-user-app
+      - run:
+          name: Create Directory
+          command: mkdir -p ~/fake-user-app
 
       - restore_cache:
           keys:
             - fake-user-dependencies-{{ checksum "pom.xml" }}
 
-      - run: mvn clean install
+      - run:
+          name: Build
+          command: mvn clean package -DskipTests
 
       - save_cache:
           paths:
@@ -66,10 +69,10 @@ workflows:
 
   build_and_deploy:
     jobs:
-      - prep
+      - build
       - docker-image-create-and-push:
           requires:
-            - prep
+            - build
       - deploy_prod:
           requires:
             - docker-image-create-and-push
