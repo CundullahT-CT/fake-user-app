@@ -1,61 +1,38 @@
-version: 2.1
+version: 2
 
 jobs:
-  build:
+  prep:
+
     docker:
       - image: circleci/openjdk:11-jdk
+
     working_directory: ~/fake-user-app
+
     steps:
       - checkout
-      - run:
-          name: Create Directory
-          command: mkdir -p ~/fake-user-app
+      - run: cd ~
+      - run: mkdir fake-user-app
+
       - restore_cache:
           keys:
             - fake-user-dependencies-{{ checksum "pom.xml" }}
-      - run:
-          name: Build
-          command: mvn clean package -DskipTests
+
+      - run: mvn clean install
+
       - save_cache:
           paths:
             - ~/.m2
           key: fake-user-dependencies-{{ checksum "pom.xml" }}
+
       - persist_to_workspace:
           root: ~/fake-user-app
           paths:
             - .
 
-  test:
-    docker:
-      - image: circleci/openjdk:11-jdk # Use a Docker image with JDK pre-installed
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/fake-user-app
-      - run:
-          name: Start Test Database
-          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB_URL -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
-            # Commands to start the dummy database, such as Docker commands or scripts
-            # For example:
-            # docker run -d --name dummy-db -p 5432:5432 my-dummy-database-image:latest
-      - run:
-          name: Run Integration Tests with Dummy Database
-          command: |
-            echo mvn test started
-            mvn test -Dskip.unit.tests=false -Dskip.integration.tests=false \
-                   -Dspring.datasource.url=$TEST_DB_URL \
-                   -Dspring.datasource.username=$TEST_DB_USERNAME \
-                   -Dspring.datasource.password=$TEST_DB_PASSWORD
-            echo mvn test ended
-#      - run:
-#          name: Stop and Remove Dummy Database
-#          command: |
-#            # Commands to stop and clean up the dummy database container
-#            # For example:
-#            # docker stop dummy-db && docker rm dummy-db
-
   docker-image-create-and-push:
+
     machine: true
+
     steps:
       - attach_workspace:
           at: ~/fake-user-app
@@ -64,46 +41,18 @@ jobs:
           command: cd ~/fake-user-app
       - run:
           name: Create Docker image
-          command: docker build -t $ECR_URL/fake-user-app:latest ~/fake-user-app
+          command: docker build -t 309373202297.dkr.ecr.eu-west-2.amazonaws.com/fake-user-app:latest ~/fake-user-app
       - run:
           name: Login to ECR
-          command: aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $ECR_URL
+          command: aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin 309373202297.dkr.ecr.eu-west-2.amazonaws.com
       - run:
           name: Push the image to ECR
-          command: docker push $ECR_URL/fake-user-app:latest
+          command: docker push 309373202297.dkr.ecr.eu-west-2.amazonaws.com/fake-user-app:latest
 
-#  deploy_dev:
-#    machine: true
-#    steps:
-#      - run:
-#          name: Execute Deployment Script
-#          command: |
-#            ssh -o "StrictHostKeyChecking=no" ubuntu@ec2-18-185-100-82.eu-central-1.compute.amazonaws.com <<'ENDSSH'
-#            /bin/bash bin/deploy_image.sh
-#            ENDSSH
-#
-#  deploy_test:
-#    machine: true
-#    steps:
-#      - run:
-#          name: Execute Deployment Script
-#          command: |
-#            ssh -o "StrictHostKeyChecking=no" ubuntu@ec2-18-185-100-82.eu-central-1.compute.amazonaws.com <<'ENDSSH'
-#            /bin/bash bin/deploy_image.sh
-#            ENDSSH
-#
-#  deploy_qa:
-#    machine: true
-#    steps:
-#      - run:
-#          name: Execute Deployment Script
-#          command: |
-#            ssh -o "StrictHostKeyChecking=no" ubuntu@ec2-18-185-100-82.eu-central-1.compute.amazonaws.com <<'ENDSSH'
-#            /bin/bash bin/deploy_image.sh
-#            ENDSSH
+  deploy:
 
-  deploy_prod:
     machine: true
+
     steps:
       - run:
           name: Execute Deployment Script
@@ -113,29 +62,15 @@ jobs:
             ENDSSH
 
 workflows:
+
   version: 2
+
   build_and_deploy:
     jobs:
-      - build
-      - test:
-          requires:
-            - build
+      - prep
       - docker-image-create-and-push:
           requires:
-            - test
-      - deploy_prod:
+            - prep
+      - deploy:
           requires:
             - docker-image-create-and-push
-
-#      - deploy_dev:
-#          requires:
-#            - test
-#      - deploy_test:
-#          requires:
-#            - deploy_dev
-#      - deploy_qa:
-#          requires:
-#            - deploy_test
-#      - deploy_prod:
-#          requires:
-#            - deploy_qa
