@@ -49,8 +49,7 @@ jobs:
           name: Push the image to ECR
           command: docker push 309373202297.dkr.ecr.eu-west-2.amazonaws.com/fake-user-app:latest
 
-  deploy:
-
+  deploy_prod:
     machine: true
 
     steps:
@@ -71,6 +70,6 @@ workflows:
       - docker-image-create-and-push:
           requires:
             - prep
-      - deploy:
+      - deploy_prod:
           requires:
             - docker-image-create-and-push
