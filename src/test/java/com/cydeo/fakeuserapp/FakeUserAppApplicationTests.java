@@ -8,6 +8,7 @@ class FakeUserAppApplicationTests {
 
     @Test
     void contextLoads() {
+        System.out.println("demo");
     }
 
 }
