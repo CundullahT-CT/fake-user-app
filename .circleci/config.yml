@@ -61,13 +61,13 @@ jobs:
           name: Push the image to ECR
           command: docker push $ECR_URL/fake-user-app:latest
 
-  deploy_test:
+  deploy_qa:
     machine: true
     steps:
       - run:
           name: Execute Deployment Script
           command: |
-            ssh -o "StrictHostKeyChecking=no" $SSH_USER_TEST@$SSH_HOST_TEST <<'ENDSSH'
+            ssh -o "StrictHostKeyChecking=no" $SSH_USER_QA@$SSH_HOST_QA <<'ENDSSH'
             /bin/bash ~/fake-user-app/deploy_image.sh
             ENDSSH
 
@@ -83,7 +83,7 @@ jobs:
 
 workflows:
   version: 2
-  build_and_deploy:
+  build_test_deploy:
     jobs:
       - build
       - test:
@@ -92,9 +92,9 @@ workflows:
       - docker-image-create-and-push:
           requires:
             - test
-      - deploy_test:
+      - deploy_qa:
           requires:
             - docker-image-create-and-push
       - deploy_prod:
           requires:
-            - deploy_test
+            - deploy_qa
