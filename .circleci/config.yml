@@ -2,31 +2,24 @@ version: 2
 
 jobs:
   build:
-
     docker:
       - image: circleci/openjdk:11-jdk
-
     working_directory: ~/fake-user-app
-
     steps:
       - checkout
       - run:
           name: Create Directory
           command: mkdir -p ~/fake-user-app
-
       - restore_cache:
           keys:
             - fake-user-dependencies-{{ checksum "pom.xml" }}
-
       - run:
           name: Build
           command: mvn clean package -DskipTests
-
       - save_cache:
           paths:
             - ~/.m2
           key: fake-user-dependencies-{{ checksum "pom.xml" }}
-
       - persist_to_workspace:
           root: ~/fake-user-app
           paths:
@@ -38,21 +31,20 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/fake-user-app
-      - run:
-          name: Start Test Database
-          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB_URL -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
+#      - run:
+#          name: Start Test Database
+#          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB_URL -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
       - run:
           name: Run Integration Tests with Dummy Database
           command: |
+            echo $TEST_DB_URL_RDS
             mvn test -Dskip.unit.tests=false -Dskip.integration.tests=false \
-                   -Dspring.datasource.url=$TEST_DB_URL \
-                   -Dspring.datasource.username=$TEST_DB_USERNAME \
-                   -Dspring.datasource.password=$TEST_DB_PASSWORD
+                   -Dspring.datasource.url=$TEST_DB_URL_RDS \
+                   -Dspring.datasource.username=$TEST_DB_USERNAME_RDS \
+                   -Dspring.datasource.password=$TEST_DB_PASSWORD_RDS
 
   docker-image-create-and-push:
-
     machine: true
-
     steps:
       - attach_workspace:
           at: ~/fake-user-app
@@ -69,9 +61,18 @@ jobs:
           name: Push the image to ECR
           command: docker push $ECR_URL/fake-user-app:latest
 
+  deploy_test:
+    machine: true
+    steps:
+      - run:
+          name: Execute Deployment Script
+          command: |
+            ssh -o "StrictHostKeyChecking=no" $SSH_USER_TEST@$SSH_HOST_TEST <<'ENDSSH'
+            /bin/bash ~/fake-user-app/deploy_image.sh
+            ENDSSH
+
   deploy_prod:
     machine: true
-
     steps:
       - run:
           name: Execute Deployment Script
@@ -81,9 +82,7 @@ jobs:
             ENDSSH
 
 workflows:
-
   version: 2
-
   build_and_deploy:
     jobs:
       - build
@@ -93,6 +92,9 @@ workflows:
       - docker-image-create-and-push:
           requires:
             - test
-      - deploy_prod:
+      - deploy_test:
           requires:
             - docker-image-create-and-push
+      - deploy_prod:
+          requires:
+            - deploy_test
