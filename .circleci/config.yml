@@ -33,7 +33,7 @@ jobs:
           at: ~/fake-user-app
       - run:
           name: Start Test Database
-          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB_URL -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
+          command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
       - run:
           name: Run Integration Tests with Dummy Database
           command: |
