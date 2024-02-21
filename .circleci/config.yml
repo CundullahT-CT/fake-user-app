@@ -1,4 +1,4 @@
-version: 2.1
+version: 2
 
 jobs:
   build:
@@ -81,6 +81,8 @@ jobs:
             ENDSSH
 
 workflows:
+
+  version: 2
 
   build_and_deploy:
     jobs:
