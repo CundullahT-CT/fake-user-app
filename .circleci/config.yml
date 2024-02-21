@@ -77,7 +77,7 @@ jobs:
           name: Execute Deployment Script
           command: |
             ssh -o "StrictHostKeyChecking=no" $SSH_USER@$SSH_HOST <<'ENDSSH'
-            /bin/bash bin/deploy_image.sh
+            /bin/bash ~/fake-user-app/deploy_image.sh
             ENDSSH
 
 workflows:
