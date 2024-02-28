@@ -28,7 +28,7 @@ jobs:
   test:
     machine: true
     steps:
-      - checkout
+#      - checkout
       - attach_workspace:
           at: ~/fake-user-app
       - run:
