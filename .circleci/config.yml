@@ -30,9 +30,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/fake-user-app
-      - run:
-          name: Go to project location
-          command: cd ~/fake-user-app
+      - checkout
       - run:
           name: Start Test Database
           command: docker run -d --name test-db -p 5432:5432 -e POSTGRES_DB=$TEST_DB -e POSTGRES_USER=$TEST_DB_USERNAME -e POSTGRES_PASSWORD=$TEST_DB_PASSWORD postgres:latest
