@@ -32,7 +32,7 @@ jobs:
           at: ~/fake-user-app
       - run:
           name: Docker Container That Runs Postgresql In It (Fake DB)
-          command: docker run --name test-db -p 5432:5432 -e POSTGRES_DB=fake-user-app -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=Cydeo123. postgres:latest
+          command: docker run --name test-db -d -p 5432:5432 -e POSTGRES_DB=fake-user-app -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=Cydeo123. postgres:latest
       - run:
           name: Run Integration Tests and Unit Tests
           command: |
