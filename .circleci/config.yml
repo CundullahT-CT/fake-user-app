@@ -79,4 +79,3 @@ workflows:
       - deploy:
           requires:
             - docker-image-create-and-push
-
