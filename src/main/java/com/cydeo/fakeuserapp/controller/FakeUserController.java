@@ -23,7 +23,12 @@ public class FakeUserController {
     }
 
     @GetMapping("/with-db/random")
-    public ResponseEntity<String> getNameDromDB() {
+    public ResponseEntity<String> getNameFromDB() {
+        return ResponseEntity.ok(fakeUserService.getNameFromDB());
+    }
+
+    @GetMapping("/circleci/random")
+    public ResponseEntity<String> getNameFromCircleCI() {
         return ResponseEntity.ok(fakeUserService.getNameFromDB());
     }
 
