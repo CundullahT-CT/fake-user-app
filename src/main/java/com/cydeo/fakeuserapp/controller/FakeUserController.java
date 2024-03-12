@@ -27,7 +27,7 @@ public class FakeUserController {
         return ResponseEntity.ok(fakeUserService.getNameFromDB());
     }
 
-    @GetMapping("/circleci2/random")
+    @GetMapping("/circleci23/random")
     public ResponseEntity<String> getNameFromCircleCI() {
         return ResponseEntity.ok(fakeUserService.getNameFromDB());
     }
