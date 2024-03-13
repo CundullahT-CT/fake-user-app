@@ -16,5 +16,4 @@ public class FakeUserAppApplication {
     public Faker faker() {
         return new Faker();
     }
-
 }
